@@ -27,23 +27,23 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Daily Life Tracker — Expenses & Habits" },
+      { title: "ตัวติดตามรายจ่ายและนิสัยประจำวัน" },
       {
         name: "description",
         content:
-          "Track your daily expenses and build better habits in one clean, mobile-first dashboard. Your data stays on your device.",
+          "ติดตามรายจ่ายและสร้างนิสัยที่ดีในแดชบอร์ดเดียวที่ออกแบบมาเพื่อมือถือ ข้อมูลทั้งหมดถูกเก็บไว้บนเครื่องของคุณ",
       },
-      { property: "og:title", content: "Daily Life Tracker — Expenses & Habits" },
+      { property: "og:title", content: "ตัวติดตามรายจ่ายและนิสัยประจำวัน" },
       {
         property: "og:description",
-        content: "A simple mobile-first tracker for spending and daily habits.",
+        content: "แอปติดตามรายจ่ายและนิสัยประจำวันแบบเรียบง่ายสำหรับมือถือ",
       },
     ],
   }),
   component: Index,
 });
 
-const monthLabel = new Date().toLocaleDateString("en-US", {
+const monthLabel = new Date().toLocaleDateString("th-TH", {
   month: "long",
   year: "numeric",
 });
@@ -56,6 +56,16 @@ const categoryEmoji: Record<Category, string> = {
   Health: "💊",
   Fun: "🎉",
   Other: "✨",
+};
+
+const categoryLabel: Record<Category, string> = {
+  Food: "อาหาร",
+  Transport: "เดินทาง",
+  Shopping: "ช้อปปิ้ง",
+  Bills: "บิล/ค่าใช้จ่าย",
+  Health: "สุขภาพ",
+  Fun: "บันเทิง",
+  Other: "อื่นๆ",
 };
 
 function Index() {
@@ -75,14 +85,14 @@ function Index() {
       <div className="mx-auto w-full max-w-md px-4">
         <header className="pt-8 pb-5">
           <p className="text-sm font-medium text-muted-foreground">
-            {new Date().toLocaleDateString("en-US", {
+            {new Date().toLocaleDateString("th-TH", {
               weekday: "long",
               day: "numeric",
               month: "short",
             })}
           </p>
           <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-foreground">
-            Daily Life Tracker
+            ตัวติดตามประจำวัน
           </h1>
         </header>
 
@@ -93,7 +103,7 @@ function Index() {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Wallet className="h-4 w-4" />
               </span>
-              <span className="text-xs font-semibold">Spent</span>
+              <span className="text-xs font-semibold">ใช้จ่าย</span>
             </div>
             <p className="mt-3 text-2xl font-extrabold text-foreground">
               {formatMoney(total)}
@@ -105,12 +115,12 @@ function Index() {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/40 text-accent-foreground">
                 <Flame className="h-4 w-4" />
               </span>
-              <span className="text-xs font-semibold">Streak</span>
+              <span className="text-xs font-semibold">สถิติต่อเนื่อง</span>
             </div>
             <p className="mt-3 text-2xl font-extrabold text-foreground">
-              {streak} <span className="text-base font-semibold">days</span>
+              {streak} <span className="text-base font-semibold">วัน</span>
             </p>
-            <p className="text-xs text-muted-foreground">Keep it going!</p>
+            <p className="text-xs text-muted-foreground">ทำต่อไปนะ!</p>
           </div>
         </section>
 
@@ -118,7 +128,7 @@ function Index() {
         <section className="mt-6">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <ListChecks className="h-4 w-4 text-primary" /> Today's habits
+              <ListChecks className="h-4 w-4 text-primary" /> นิสัยวันนี้
             </h2>
           </div>
           <div className="card-soft divide-y divide-border p-1">
@@ -153,13 +163,13 @@ function Index() {
         {/* History */}
         <section className="mt-6">
           <h2 className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
-            <CalendarDays className="h-4 w-4 text-primary" /> Recent activity
+            <CalendarDays className="h-4 w-4 text-primary" /> กิจกรรมล่าสุด
           </h2>
           {hydrated && history.length === 0 ? (
             <div className="card-soft p-8 text-center">
               <p className="text-sm text-muted-foreground">
-                Nothing yet. Tap the + button to add your first expense or
-                check off a habit.
+                ยังไม่มีรายการ แตะปุ่ม + เพื่อเพิ่มรายจ่ายแรกของคุณ
+                หรือทำเครื่องหมายนิสัยที่ทำสำเร็จ
               </p>
             </div>
           ) : (
@@ -179,12 +189,12 @@ function Index() {
             onClick={() => setSheet("habit")}
             className="flex h-12 items-center gap-2 rounded-full bg-card px-5 text-sm font-bold text-foreground shadow-lg ring-1 ring-border transition-transform active:scale-95"
           >
-            <ListChecks className="h-4 w-4 text-primary" /> Habit
+            <ListChecks className="h-4 w-4 text-primary" /> นิสัย
           </button>
           <button
             onClick={() => setSheet("expense")}
             className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform active:scale-95"
-            aria-label="Add expense"
+            aria-label="เพิ่มรายจ่าย"
           >
             <Plus className="h-7 w-7" />
           </button>
@@ -216,7 +226,7 @@ function HistoryRow({
   item: HistoryItem;
   onRemove: (id: string) => void;
 }) {
-  const time = new Date(item.date).toLocaleString("en-US", {
+  const time = new Date(item.date).toLocaleString("th-TH", {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -236,11 +246,11 @@ function HistoryRow({
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">
           {item.type === "expense"
-            ? item.description || item.category
+            ? item.description || categoryLabel[item.category]
             : item.habitName}
         </p>
         <p className="text-xs text-muted-foreground">
-          {item.type === "expense" ? item.category : "Habit done"} · {time}
+          {item.type === "expense" ? categoryLabel[item.category] : "ทำนิสัยสำเร็จ"} · {time}
         </p>
       </div>
       {item.type === "expense" ? (
@@ -253,7 +263,7 @@ function HistoryRow({
       <button
         onClick={() => onRemove(item.id)}
         className="shrink-0 rounded-full p-1.5 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive"
-        aria-label="Delete"
+        aria-label="ลบ"
       >
         <Trash2 className="h-4 w-4" />
       </button>
@@ -298,11 +308,11 @@ function EntrySheet({
       <div className="relative w-full max-w-md rounded-t-3xl bg-card p-5 pb-8 shadow-2xl">
         <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border" />
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-foreground">Quick entry</h3>
+          <h3 className="text-lg font-bold text-foreground">เพิ่มรายการด่วน</h3>
           <button
             onClick={onClose}
             className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
-            aria-label="Close"
+            aria-label="ปิด"
           >
             <X className="h-5 w-5" />
           </button>
@@ -313,13 +323,13 @@ function EntrySheet({
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full py-2 text-sm font-semibold capitalize transition-colors ${
+              className={`rounded-full py-2 text-sm font-semibold transition-colors ${
                 tab === t
                   ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground"
               }`}
             >
-              {t === "expense" ? "Expense" : "New habit"}
+              {t === "expense" ? "รายจ่าย" : "นิสัยใหม่"}
             </button>
           ))}
         </div>
@@ -328,10 +338,10 @@ function EntrySheet({
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-                Amount
+                จำนวนเงิน
               </label>
               <div className="flex items-center rounded-xl border border-input bg-background px-4 focus-within:ring-2 focus-within:ring-ring">
-                <span className="text-lg font-bold text-muted-foreground">$</span>
+                <span className="text-lg font-bold text-muted-foreground">฿</span>
                 <input
                   type="number"
                   inputMode="decimal"
@@ -345,7 +355,7 @@ function EntrySheet({
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-                Category
+                หมวดหมู่
               </label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((c) => (
@@ -358,19 +368,19 @@ function EntrySheet({
                         : "bg-secondary text-secondary-foreground"
                     }`}
                   >
-                    {categoryEmoji[c]} {c}
+                    {categoryEmoji[c]} {categoryLabel[c]}
                   </button>
                 ))}
               </div>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-                Description (optional)
+                รายละเอียด (ไม่บังคับ)
               </label>
               <input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. Lunch with friends"
+                placeholder="เช่น ข้าวเที่ยงกับเพื่อน"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -378,17 +388,17 @@ function EntrySheet({
         ) : (
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-              Habit name
+              ชื่อนิสัย
             </label>
             <input
               autoFocus
               value={habitName}
               onChange={(e) => setHabitName(e.target.value)}
-              placeholder="e.g. Meditate 10 min"
+              placeholder="เช่น นั่งสมาธิ 10 นาที"
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              It will appear in your daily checklist.
+              จะปรากฏในรายการนิสัยประจำวันของคุณ
             </p>
           </div>
         )}
@@ -397,7 +407,7 @@ function EntrySheet({
           onClick={submit}
           className="mt-6 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-transform active:scale-[0.98]"
         >
-          {tab === "expense" ? "Add expense" : "Add habit"}
+          {tab === "expense" ? "เพิ่มรายจ่าย" : "เพิ่มนิสัย"}
         </button>
       </div>
     </div>
