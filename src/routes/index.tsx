@@ -125,6 +125,9 @@ function Index() {
           </div>
         </section>
 
+        {/* Trend charts */}
+        <TrendCharts expenses={data.expenses} logs={data.logs} />
+
         {/* Today's habits */}
         <section className="mt-6">
           <div className="mb-2 flex items-center justify-between">
