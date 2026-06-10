@@ -406,6 +406,30 @@ function HomeTab({
         </div>
 
         {hydrated && recent.length === 0 ? (
+          <></>
+        ) : null}
+        {/* Sort */}
+        <div className="mb-3 flex gap-1.5">
+          {([
+            ["newest", "ใหม่สุด"],
+            ["oldest", "เก่าสุด"],
+            ["amount", "ยอดมากไปน้อย"],
+          ] as const).map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => setSort(val)}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                sort === val
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {hydrated && recent.length === 0 ? (
           <div className="card-soft p-8 text-center">
             <p className="text-sm text-muted-foreground">
               {isFiltering
