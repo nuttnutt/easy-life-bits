@@ -378,6 +378,8 @@ function HomeTab({
                     outerRadius={62}
                     paddingAngle={2}
                     stroke="none"
+                    onClick={(_, i) => onSelectCategory(slices[i].category)}
+                    className="cursor-pointer"
                   >
                     {slices.map((_, i) => (
                       <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
