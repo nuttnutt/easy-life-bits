@@ -204,3 +204,65 @@ export function buildHistory(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 }
+
+export interface TrendPoint {
+  label: string;
+  amount: number;
+  habits: number;
+}
+
+// Daily totals for the last `days` days (oldest -> newest).
+export function dailyTrend(
+  expenses: Expense[],
+  logs: HabitLog[],
+  days = 7,
+): TrendPoint[] {
+  const result: TrendPoint[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = dayKey(d);
+    const amount = expenses
+      .filter((e) => dayKey(e.date) === key)
+      .reduce((s, e) => s + e.amount, 0);
+    const habits = logs.filter((l) => l.day === key).length;
+    result.push({
+      label: d.toLocaleDateString("th-TH", { weekday: "short" }),
+      amount: Math.round(amount * 100) / 100,
+      habits,
+    });
+  }
+  return result;
+}
+
+// Weekly totals for the last `weeks` weeks (oldest -> newest).
+export function weeklyTrend(
+  expenses: Expense[],
+  logs: HabitLog[],
+  weeks = 6,
+): TrendPoint[] {
+  const result: TrendPoint[] = [];
+  for (let i = weeks - 1; i >= 0; i--) {
+    const end = new Date();
+    end.setDate(end.getDate() - i * 7);
+    const start = new Date(end);
+    start.setDate(start.getDate() - 6);
+    const inRange = (dateStr: string) => {
+      const k = dayKey(dateStr);
+      return k >= dayKey(start) && k <= dayKey(end);
+    };
+    const amount = expenses
+      .filter((e) => inRange(e.date))
+      .reduce((s, e) => s + e.amount, 0);
+    const habits = logs.filter((l) => inRange(l.date)).length;
+    result.push({
+      label:
+        i === 0
+          ? "สัปดาห์นี้"
+          : start.toLocaleDateString("th-TH", { day: "numeric", month: "short" }),
+      amount: Math.round(amount * 100) / 100,
+      habits,
+    });
+  }
+  return result;
+}
