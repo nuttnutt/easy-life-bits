@@ -141,5 +141,14 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+@utility card-soft {
+  background-color: var(--color-card);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 1px 2px oklch(0.5 0.05 165 / 0.04), 0 8px 24px -12px oklch(0.5 0.08 165 / 0.18);
+  border: 1px solid oklch(0.92 0.015 160 / 0.6);
 }
