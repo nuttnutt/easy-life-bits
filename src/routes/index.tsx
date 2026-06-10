@@ -35,6 +35,7 @@ import {
   buildHistory,
   categoryBreakdown,
   currentWeek,
+  dayKey,
   formatMoney,
   habitStreakFor,
   isHabitDoneToday,
@@ -122,6 +123,25 @@ function emojiFor(e: Expense): string {
 
 type Tab = "home" | "habits" | "stats";
 
+export interface DateFilter {
+  from: string;
+  to: string;
+  label: string;
+}
+
+export interface TxnFilter {
+  query: string;
+  setQuery: (v: string) => void;
+  flowFilter: "all" | "in" | "out";
+  setFlowFilter: (v: "all" | "in" | "out") => void;
+  catFilter: string;
+  setCatFilter: (v: string) => void;
+  sort: "newest" | "oldest" | "amount";
+  setSort: (v: "newest" | "oldest" | "amount") => void;
+  dateFilter: DateFilter | null;
+  setDateFilter: (v: DateFilter | null) => void;
+}
+
 function Index() {
   const {
     data,
@@ -134,11 +154,48 @@ function Index() {
   const [sheet, setSheet] = useState(false);
   const [tab, setTab] = useState<Tab>("home");
 
+  const [query, setQuery] = useState("");
+  const [flowFilter, setFlowFilter] = useState<"all" | "in" | "out">("all");
+  const [catFilter, setCatFilter] = useState<string>("all");
+  const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
+  const [dateFilter, setDateFilter] = useState<DateFilter | null>(null);
+
+  const filter: TxnFilter = {
+    query,
+    setQuery,
+    flowFilter,
+    setFlowFilter,
+    catFilter,
+    setCatFilter,
+    sort,
+    setSort,
+    dateFilter,
+    setDateFilter,
+  };
+
+  const selectCategory = (category: Category) => {
+    setFlowFilter("out");
+    setCatFilter(category);
+    setDateFilter(null);
+    setTab("home");
+  };
+
+  const selectDateRange = (d: DateFilter) => {
+    setDateFilter(d);
+    setTab("home");
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="mx-auto w-full max-w-md">
         {tab === "home" && (
-          <HomeTab data={data} hydrated={hydrated} onRemove={removeItem} />
+          <HomeTab
+            data={data}
+            hydrated={hydrated}
+            onRemove={removeItem}
+            filter={filter}
+            onSelectCategory={selectCategory}
+          />
         )}
         {tab === "habits" && (
           <HabitsTab data={data} onToggle={toggleHabit} />
@@ -146,7 +203,11 @@ function Index() {
         {tab === "stats" && (
           <div className="px-4">
             <TopBar title="สถิติ" />
-            <TrendCharts expenses={data.expenses} logs={data.logs} />
+            <TrendCharts
+              expenses={data.expenses}
+              logs={data.logs}
+              onSelectRange={selectDateRange}
+            />
           </div>
         )}
       </div>
@@ -190,19 +251,31 @@ function HomeTab({
   data,
   hydrated,
   onRemove,
+  filter,
+  onSelectCategory,
 }: {
   data: { expenses: Expense[]; logs: HabitLog[] };
   hydrated: boolean;
   onRemove: (id: string) => void;
+  filter: TxnFilter;
+  onSelectCategory: (category: Category) => void;
 }) {
   const income = useMemo(() => monthTotal(data.expenses, "in"), [data.expenses]);
   const expense = useMemo(() => monthTotal(data.expenses, "out"), [data.expenses]);
   const balance = useMemo(() => monthBalance(data.expenses), [data.expenses]);
   const slices = useMemo(() => categoryBreakdown(data.expenses), [data.expenses]);
-  const [query, setQuery] = useState("");
-  const [flowFilter, setFlowFilter] = useState<"all" | "in" | "out">("all");
-  const [catFilter, setCatFilter] = useState<string>("all");
-  const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
+  const {
+    query,
+    setQuery,
+    flowFilter,
+    setFlowFilter,
+    catFilter,
+    setCatFilter,
+    sort,
+    setSort,
+    dateFilter,
+    setDateFilter,
+  } = filter;
 
   const allTxns = useMemo(
     () =>
@@ -223,6 +296,10 @@ function HomeTab({
     const list = allTxns.filter((e) => {
       if (flowFilter !== "all" && e.flow !== flowFilter) return false;
       if (catFilter !== "all" && e.category !== catFilter) return false;
+      if (dateFilter) {
+        const k = dayKey(e.date);
+        if (k < dateFilter.from || k > dateFilter.to) return false;
+      }
       if (q) {
         const hay = `${e.description ?? ""} ${labelFor(e)}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -238,12 +315,13 @@ function HomeTab({
       sorted.sort((a, b) => +new Date(b.date) - +new Date(a.date));
     }
     return sorted;
-  }, [allTxns, query, flowFilter, catFilter, sort]);
+  }, [allTxns, query, flowFilter, catFilter, sort, dateFilter]);
 
   const isFiltering =
     query.trim() !== "" ||
     flowFilter !== "all" ||
     catFilter !== "all" ||
+    dateFilter !== null ||
     sort !== "newest";
   const recent = isFiltering ? filtered : filtered.slice(0, 5);
 
@@ -300,6 +378,8 @@ function HomeTab({
                     outerRadius={62}
                     paddingAngle={2}
                     stroke="none"
+                    onClick={(_, i) => onSelectCategory(slices[i].category)}
+                    className="cursor-pointer"
                   >
                     {slices.map((_, i) => (
                       <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
@@ -318,18 +398,22 @@ function HomeTab({
               {slices.map((s, i) => (
                 <li
                   key={s.category}
-                  className="flex items-center gap-2 text-xs"
                 >
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
-                  />
-                  <span className="flex-1 text-foreground">
-                    {categoryLabel[s.category]}
-                  </span>
-                  <span className="font-semibold text-muted-foreground">
-                    {s.pct}%
-                  </span>
+                  <button
+                    onClick={() => onSelectCategory(s.category)}
+                    className="flex w-full items-center gap-2 rounded-lg px-1 py-0.5 text-xs transition-colors hover:bg-secondary"
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
+                    />
+                    <span className="flex-1 text-left text-foreground">
+                      {categoryLabel[s.category]}
+                    </span>
+                    <span className="font-semibold text-muted-foreground">
+                      {s.pct}%
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -340,6 +424,17 @@ function HomeTab({
       {/* Recent transactions */}
       <section className="mt-5">
         <h2 className="mb-2 text-sm font-bold text-foreground">รายการล่าสุด</h2>
+
+        {/* Active date filter chip */}
+        {dateFilter && (
+          <button
+            onClick={() => setDateFilter(null)}
+            className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary"
+          >
+            ช่วง: {dateFilter.label}
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
 
         {/* Search */}
         <div className="relative mb-2">
