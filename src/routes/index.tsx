@@ -226,7 +226,7 @@ function HistoryRow({
   item: HistoryItem;
   onRemove: (id: string) => void;
 }) {
-  const time = new Date(item.date).toLocaleString("en-US", {
+  const time = new Date(item.date).toLocaleString("th-TH", {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -246,11 +246,11 @@ function HistoryRow({
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">
           {item.type === "expense"
-            ? item.description || item.category
+            ? item.description || categoryLabel[item.category]
             : item.habitName}
         </p>
         <p className="text-xs text-muted-foreground">
-          {item.type === "expense" ? item.category : "Habit done"} · {time}
+          {item.type === "expense" ? categoryLabel[item.category] : "ทำนิสัยสำเร็จ"} · {time}
         </p>
       </div>
       {item.type === "expense" ? (
@@ -263,7 +263,7 @@ function HistoryRow({
       <button
         onClick={() => onRemove(item.id)}
         className="shrink-0 rounded-full p-1.5 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive"
-        aria-label="Delete"
+        aria-label="ลบ"
       >
         <Trash2 className="h-4 w-4" />
       </button>
