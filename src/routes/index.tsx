@@ -405,9 +405,6 @@ function HomeTab({
           ))}
         </div>
 
-        {hydrated && recent.length === 0 ? (
-          <></>
-        ) : null}
         {/* Sort */}
         <div className="mb-3 flex gap-1.5">
           {([
