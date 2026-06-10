@@ -122,6 +122,25 @@ function emojiFor(e: Expense): string {
 
 type Tab = "home" | "habits" | "stats";
 
+export interface DateFilter {
+  from: string;
+  to: string;
+  label: string;
+}
+
+export interface TxnFilter {
+  query: string;
+  setQuery: (v: string) => void;
+  flowFilter: "all" | "in" | "out";
+  setFlowFilter: (v: "all" | "in" | "out") => void;
+  catFilter: string;
+  setCatFilter: (v: string) => void;
+  sort: "newest" | "oldest" | "amount";
+  setSort: (v: "newest" | "oldest" | "amount") => void;
+  dateFilter: DateFilter | null;
+  setDateFilter: (v: DateFilter | null) => void;
+}
+
 function Index() {
   const {
     data,
@@ -134,11 +153,48 @@ function Index() {
   const [sheet, setSheet] = useState(false);
   const [tab, setTab] = useState<Tab>("home");
 
+  const [query, setQuery] = useState("");
+  const [flowFilter, setFlowFilter] = useState<"all" | "in" | "out">("all");
+  const [catFilter, setCatFilter] = useState<string>("all");
+  const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
+  const [dateFilter, setDateFilter] = useState<DateFilter | null>(null);
+
+  const filter: TxnFilter = {
+    query,
+    setQuery,
+    flowFilter,
+    setFlowFilter,
+    catFilter,
+    setCatFilter,
+    sort,
+    setSort,
+    dateFilter,
+    setDateFilter,
+  };
+
+  const selectCategory = (category: Category) => {
+    setFlowFilter("out");
+    setCatFilter(category);
+    setDateFilter(null);
+    setTab("home");
+  };
+
+  const selectDateRange = (d: DateFilter) => {
+    setDateFilter(d);
+    setTab("home");
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="mx-auto w-full max-w-md">
         {tab === "home" && (
-          <HomeTab data={data} hydrated={hydrated} onRemove={removeItem} />
+          <HomeTab
+            data={data}
+            hydrated={hydrated}
+            onRemove={removeItem}
+            filter={filter}
+            onSelectCategory={selectCategory}
+          />
         )}
         {tab === "habits" && (
           <HabitsTab data={data} onToggle={toggleHabit} />
@@ -146,7 +202,11 @@ function Index() {
         {tab === "stats" && (
           <div className="px-4">
             <TopBar title="สถิติ" />
-            <TrendCharts expenses={data.expenses} logs={data.logs} />
+            <TrendCharts
+              expenses={data.expenses}
+              logs={data.logs}
+              onSelectRange={selectDateRange}
+            />
           </div>
         )}
       </div>
