@@ -12,6 +12,7 @@ import {
   X,
   CalendarDays,
 } from "lucide-react";
+import { TrendCharts } from "@/components/TrendCharts";
 import {
   CATEGORIES,
   type Category,
