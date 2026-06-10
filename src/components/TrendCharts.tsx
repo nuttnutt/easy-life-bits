@@ -51,9 +51,10 @@ export function TrendCharts({
     onSelectRange({ from: p.from, to: p.to, label: p.label });
   };
 
-  const onChartClick = (state: { activeTooltipIndex?: number } | null) => {
-    if (!state || state.activeTooltipIndex == null) return;
-    handlePick(data[state.activeTooltipIndex]);
+  const onChartClick = (state: any) => {
+    const idx = state?.activeTooltipIndex;
+    if (idx == null) return;
+    handlePick(data[idx]);
   };
 
   return (
