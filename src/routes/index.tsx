@@ -199,13 +199,39 @@ function HomeTab({
   const expense = useMemo(() => monthTotal(data.expenses, "out"), [data.expenses]);
   const balance = useMemo(() => monthBalance(data.expenses), [data.expenses]);
   const slices = useMemo(() => categoryBreakdown(data.expenses), [data.expenses]);
-  const recent = useMemo(
+  const [query, setQuery] = useState("");
+  const [flowFilter, setFlowFilter] = useState<"all" | "in" | "out">("all");
+  const [catFilter, setCatFilter] = useState<string>("all");
+
+  const allTxns = useMemo(
     () =>
-      buildHistory(data.expenses, [])
-        .filter((i): i is Expense => i.type === "expense")
-        .slice(0, 5),
+      buildHistory(data.expenses, []).filter(
+        (i): i is Expense => i.type === "expense",
+      ),
     [data.expenses],
   );
+
+  const catOptions = useMemo(() => {
+    if (flowFilter === "in") return [...INCOME_CATEGORIES];
+    if (flowFilter === "out") return [...CATEGORIES];
+    return [...CATEGORIES, ...INCOME_CATEGORIES];
+  }, [flowFilter]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return allTxns.filter((e) => {
+      if (flowFilter !== "all" && e.flow !== flowFilter) return false;
+      if (catFilter !== "all" && e.category !== catFilter) return false;
+      if (q) {
+        const hay = `${e.description ?? ""} ${labelFor(e)}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [allTxns, query, flowFilter, catFilter]);
+
+  const isFiltering = query.trim() !== "" || flowFilter !== "all" || catFilter !== "all";
+  const recent = isFiltering ? filtered : filtered.slice(0, 5);
 
   return (
     <div className="px-4">
