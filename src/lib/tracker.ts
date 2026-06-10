@@ -214,15 +214,6 @@ export function categoryBreakdown(expenses: Expense[]): CategorySlice[] {
     .sort((a, b) => b.amount - a.amount);
 }
 
-function legacyMonthTotal(expenses: Expense[]): number {
-  return expenses
-    .filter((e) => {
-      const d = new Date(e.date);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    })
-    .reduce((sum, e) => sum + e.amount, 0);
-}
-
 // Best current streak across all habits: count consecutive days (ending today
 // or yesterday) where at least one habit was completed.
 export function habitStreak(logs: HabitLog[]): number {
