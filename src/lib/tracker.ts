@@ -353,7 +353,7 @@ export function dailyTrend(
     d.setDate(d.getDate() - i);
     const key = dayKey(d);
     const amount = expenses
-      .filter((e) => dayKey(e.date) === key)
+      .filter((e) => e.flow === "out" && dayKey(e.date) === key)
       .reduce((s, e) => s + e.amount, 0);
     const habits = logs.filter((l) => l.day === key).length;
     result.push({
