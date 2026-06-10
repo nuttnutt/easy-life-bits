@@ -192,7 +192,7 @@
 }
 @utility hover-bob {
   transition: transform 0.2s ease;
-}
-@utility hover-bob:hover {
-  animation: bob 0.6s ease-in-out infinite;
+  &:hover {
+    animation: bob 0.6s ease-in-out infinite;
+  }
 }
