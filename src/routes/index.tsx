@@ -425,6 +425,17 @@ function HomeTab({
       <section className="mt-5">
         <h2 className="mb-2 text-sm font-bold text-foreground">รายการล่าสุด</h2>
 
+        {/* Active date filter chip */}
+        {dateFilter && (
+          <button
+            onClick={() => setDateFilter(null)}
+            className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary"
+          >
+            ช่วง: {dateFilter.label}
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+
         {/* Search */}
         <div className="relative mb-2">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
