@@ -247,7 +247,7 @@ function TopBar({ title }: { title: string }) {
         <img
           src={appLogo.url}
           alt="Smart Expense & Habit Tracker"
-          className="h-9 w-9 rounded-full object-cover"
+          className="h-9 w-9 rounded-full object-cover animate-float-soft"
         />
         <h1 className="text-base font-bold text-foreground">{title}</h1>
       </div>
@@ -365,6 +365,7 @@ function HomeTab({
           </div>
         </div>
         <Wallet className="absolute -right-3 -bottom-3 h-28 w-28 opacity-15" />
+        <span className="absolute right-5 top-4 text-xl animate-float-soft">✨</span>
       </div>
 
       {/* Category breakdown */}
@@ -563,8 +564,8 @@ function TxnRow({ e, onRemove }: { e: Expense; onRemove: (id: string) => void })
   });
   const isIncome = e.flow === "in";
   return (
-    <li className="card-soft group flex items-center gap-3 p-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-lg">
+    <li className="card-soft group flex animate-pop-in items-center gap-3 p-3 transition-transform hover:-translate-y-0.5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-lg transition-transform group-hover:scale-110 group-hover:-rotate-6">
         {emojiFor(e)}
       </span>
       <div className="min-w-0 flex-1">
@@ -659,8 +660,12 @@ function HabitsTab({
       </section>
 
       {/* Achievement banner */}
-      <section className="mt-4 flex items-center gap-3 rounded-2xl bg-primary/10 p-4">
-        <Trophy className="h-9 w-9 shrink-0 text-accent-foreground" />
+      <section className="mt-4 flex items-center gap-3 rounded-3xl bg-primary/10 p-4">
+        <Trophy
+          className={`h-9 w-9 shrink-0 text-accent-foreground ${
+            anyDoneToday ? "animate-float-soft" : ""
+          }`}
+        />
         <div>
           <p className="text-sm font-bold text-foreground">
             {anyDoneToday ? "เยี่ยมเลย!" : "เริ่มต้นวันนี้กันเถอะ"}
@@ -692,9 +697,13 @@ function HabitCard({
   return (
     <div className="card-soft p-4">
       <div className="flex items-start gap-3">
-        <button onClick={onToggle} className="mt-0.5 shrink-0" aria-label={name}>
+        <button
+          onClick={onToggle}
+          className="mt-0.5 shrink-0 transition-transform active:scale-90 hover:scale-110"
+          aria-label={name}
+        >
           {done ? (
-            <CheckCircle2 className="h-6 w-6 text-primary" />
+            <CheckCircle2 className="h-6 w-6 text-primary animate-pop-in" />
           ) : (
             <Circle className="h-6 w-6 text-muted-foreground/40" />
           )}
@@ -704,7 +713,9 @@ function HabitCard({
           <p className="text-xs text-muted-foreground">ทุกวัน</p>
         </div>
         <div className="text-right">
-          <p className="text-lg font-extrabold text-primary">{streak}</p>
+          <p className="text-lg font-extrabold text-primary">
+            {streak > 0 ? `🔥${streak}` : streak}
+          </p>
           <p className="text-[10px] text-muted-foreground">วันต่อเนื่อง</p>
         </div>
       </div>
@@ -761,7 +772,7 @@ function BottomNav({
         <div className="flex flex-1 justify-center">
           <button
             onClick={onAdd}
-            className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform active:scale-95"
+            className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform hover:scale-110 hover:rotate-90 active:scale-95"
             aria-label="เพิ่มรายการ"
           >
             <Plus className="h-7 w-7" />
