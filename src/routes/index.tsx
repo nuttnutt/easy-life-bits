@@ -45,6 +45,7 @@ import {
   useTracker,
 } from "@/lib/tracker";
 import { TrendCharts } from "@/components/TrendCharts";
+import appLogo from "@/assets/app-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
