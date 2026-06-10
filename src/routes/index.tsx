@@ -235,10 +235,14 @@ function Index() {
 function TopBar({ title }: { title: string }) {
   return (
     <header className="flex items-center justify-between pt-7 pb-4">
-      <button className="text-muted-foreground" aria-label="เมนู">
-        <Menu className="h-5 w-5" />
-      </button>
-      <h1 className="text-base font-bold text-foreground">{title}</h1>
+      <div className="flex items-center gap-2">
+        <img
+          src={appLogo.url}
+          alt="Smart Expense & Habit Tracker"
+          className="h-9 w-9 rounded-full object-cover"
+        />
+        <h1 className="text-base font-bold text-foreground">{title}</h1>
+      </div>
       <button className="text-muted-foreground" aria-label="แจ้งเตือน">
         <Bell className="h-5 w-5" />
       </button>
