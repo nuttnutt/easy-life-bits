@@ -186,8 +186,17 @@ function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="mx-auto w-full max-w-md">
+    <div className="relative min-h-screen bg-background pb-24">
+      {/* Logo watermark background */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0 bg-center bg-no-repeat opacity-[0.04]"
+        style={{
+          backgroundImage: `url(${appLogo.url})`,
+          backgroundSize: "min(120vw, 560px)",
+        }}
+      />
+      <div className="relative z-10 mx-auto w-full max-w-md">
         {tab === "home" && (
           <HomeTab
             data={data}
