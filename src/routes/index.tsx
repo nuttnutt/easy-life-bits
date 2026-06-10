@@ -398,18 +398,22 @@ function HomeTab({
               {slices.map((s, i) => (
                 <li
                   key={s.category}
-                  className="flex items-center gap-2 text-xs"
                 >
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
-                  />
-                  <span className="flex-1 text-foreground">
-                    {categoryLabel[s.category]}
-                  </span>
-                  <span className="font-semibold text-muted-foreground">
-                    {s.pct}%
-                  </span>
+                  <button
+                    onClick={() => onSelectCategory(s.category)}
+                    className="flex w-full items-center gap-2 rounded-lg px-1 py-0.5 text-xs transition-colors hover:bg-secondary"
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
+                    />
+                    <span className="flex-1 text-left text-foreground">
+                      {categoryLabel[s.category]}
+                    </span>
+                    <span className="font-semibold text-muted-foreground">
+                      {s.pct}%
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>
