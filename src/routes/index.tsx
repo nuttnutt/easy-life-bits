@@ -18,6 +18,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   PieChart,
   Pie,
