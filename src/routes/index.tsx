@@ -27,23 +27,23 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Daily Life Tracker — Expenses & Habits" },
+      { title: "ตัวติดตามรายจ่ายและนิสัยประจำวัน" },
       {
         name: "description",
         content:
-          "Track your daily expenses and build better habits in one clean, mobile-first dashboard. Your data stays on your device.",
+          "ติดตามรายจ่ายและสร้างนิสัยที่ดีในแดชบอร์ดเดียวที่ออกแบบมาเพื่อมือถือ ข้อมูลทั้งหมดถูกเก็บไว้บนเครื่องของคุณ",
       },
-      { property: "og:title", content: "Daily Life Tracker — Expenses & Habits" },
+      { property: "og:title", content: "ตัวติดตามรายจ่ายและนิสัยประจำวัน" },
       {
         property: "og:description",
-        content: "A simple mobile-first tracker for spending and daily habits.",
+        content: "แอปติดตามรายจ่ายและนิสัยประจำวันแบบเรียบง่ายสำหรับมือถือ",
       },
     ],
   }),
   component: Index,
 });
 
-const monthLabel = new Date().toLocaleDateString("en-US", {
+const monthLabel = new Date().toLocaleDateString("th-TH", {
   month: "long",
   year: "numeric",
 });
@@ -56,6 +56,16 @@ const categoryEmoji: Record<Category, string> = {
   Health: "💊",
   Fun: "🎉",
   Other: "✨",
+};
+
+const categoryLabel: Record<Category, string> = {
+  Food: "อาหาร",
+  Transport: "เดินทาง",
+  Shopping: "ช้อปปิ้ง",
+  Bills: "บิล/ค่าใช้จ่าย",
+  Health: "สุขภาพ",
+  Fun: "บันเทิง",
+  Other: "อื่นๆ",
 };
 
 function Index() {
