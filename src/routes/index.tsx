@@ -660,8 +660,12 @@ function HabitsTab({
       </section>
 
       {/* Achievement banner */}
-      <section className="mt-4 flex items-center gap-3 rounded-2xl bg-primary/10 p-4">
-        <Trophy className="h-9 w-9 shrink-0 text-accent-foreground" />
+      <section className="mt-4 flex items-center gap-3 rounded-3xl bg-primary/10 p-4">
+        <Trophy
+          className={`h-9 w-9 shrink-0 text-accent-foreground ${
+            anyDoneToday ? "animate-float-soft" : ""
+          }`}
+        />
         <div>
           <p className="text-sm font-bold text-foreground">
             {anyDoneToday ? "เยี่ยมเลย!" : "เริ่มต้นวันนี้กันเถอะ"}
