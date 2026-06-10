@@ -365,6 +365,7 @@ function HomeTab({
           </div>
         </div>
         <Wallet className="absolute -right-3 -bottom-3 h-28 w-28 opacity-15" />
+        <span className="absolute right-5 top-4 text-xl animate-float-soft">✨</span>
       </div>
 
       {/* Category breakdown */}
