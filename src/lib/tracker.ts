@@ -382,7 +382,7 @@ export function weeklyTrend(
       return k >= dayKey(start) && k <= dayKey(end);
     };
     const amount = expenses
-      .filter((e) => inRange(e.date))
+      .filter((e) => e.flow === "out" && inRange(e.date))
       .reduce((s, e) => s + e.amount, 0);
     const habits = logs.filter((l) => inRange(l.date)).length;
     result.push({
