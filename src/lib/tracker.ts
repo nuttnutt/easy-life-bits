@@ -19,11 +19,23 @@ export const CATEGORIES: Category[] = [
   "Other",
 ];
 
+export type IncomeCategory = "Salary" | "Bonus" | "Gift" | "OtherIncome";
+
+export const INCOME_CATEGORIES: IncomeCategory[] = [
+  "Salary",
+  "Bonus",
+  "Gift",
+  "OtherIncome",
+];
+
+export type Flow = "in" | "out";
+
 export interface Expense {
   id: string;
   type: "expense";
+  flow: Flow;
   amount: number;
-  category: Category;
+  category: Category | IncomeCategory;
   description: string;
   date: string; // ISO
 }
