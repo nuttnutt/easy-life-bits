@@ -80,8 +80,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "ตัวติดตามรายจ่ายและนิสัยประจำวัน" },
       { name: "description", content: "ติดตามรายจ่ายและนิสัยประจำวันในที่เดียว" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "ตัวติดตามรายจ่ายและนิสัยประจำวัน" },
+      { property: "og:description", content: "ติดตามรายจ่ายและนิสัยประจำวันในที่เดียว" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
@@ -90,6 +90,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { name: "apple-mobile-web-app-title", content: "Life Tracker" },
       { name: "mobile-web-app-capable", content: "yes" },
+      { name: "twitter:title", content: "ตัวติดตามรายจ่ายและนิสัยประจำวัน" },
+      { name: "twitter:description", content: "ติดตามรายจ่ายและนิสัยประจำวันในที่เดียว" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/CTSmobcfUfXEujYWKzL8dAfBVqD2/social-images/social-1781087289861-ChatGPT_Image_Jun_10,_2026,_04_43_54_PM.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/CTSmobcfUfXEujYWKzL8dAfBVqD2/social-images/social-1781087289861-ChatGPT_Image_Jun_10,_2026,_04_43_54_PM.webp" },
     ],
     links: [
       {
