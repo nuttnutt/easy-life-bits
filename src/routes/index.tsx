@@ -326,10 +326,77 @@ function HomeTab({
       {/* Recent transactions */}
       <section className="mt-5">
         <h2 className="mb-2 text-sm font-bold text-foreground">รายการล่าสุด</h2>
+
+        {/* Search */}
+        <div className="relative mb-2">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="ค้นหารายการ..."
+            className="w-full rounded-xl border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
+          />
+        </div>
+
+        {/* Flow filter */}
+        <div className="mb-2 flex gap-1.5">
+          {([
+            ["all", "ทั้งหมด"],
+            ["in", "รายรับ"],
+            ["out", "รายจ่าย"],
+          ] as const).map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => {
+                setFlowFilter(val);
+                setCatFilter("all");
+              }}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                flowFilter === val
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Category filter */}
+        <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
+          <button
+            onClick={() => setCatFilter("all")}
+            className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+              catFilter === "all"
+                ? "bg-foreground text-background"
+                : "bg-secondary text-muted-foreground"
+            }`}
+          >
+            ทุกหมวดหมู่
+          </button>
+          {catOptions.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCatFilter(c)}
+              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                catFilter === c
+                  ? "bg-foreground text-background"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
+              {INCOME_CATEGORIES.includes(c as IncomeCategory)
+                ? incomeLabel[c as IncomeCategory]
+                : categoryLabel[c as Category]}
+            </button>
+          ))}
+        </div>
+
         {hydrated && recent.length === 0 ? (
           <div className="card-soft p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              ยังไม่มีรายการ แตะปุ่ม + เพื่อเพิ่มรายรับหรือรายจ่ายแรกของคุณ
+              {isFiltering
+                ? "ไม่พบรายการที่ตรงกับเงื่อนไข"
+                : "ยังไม่มีรายการ แตะปุ่ม + เพื่อเพิ่มรายรับหรือรายจ่ายแรกของคุณ"}
             </p>
           </div>
         ) : (
