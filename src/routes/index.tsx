@@ -693,9 +693,13 @@ function HabitCard({
   return (
     <div className="card-soft p-4">
       <div className="flex items-start gap-3">
-        <button onClick={onToggle} className="mt-0.5 shrink-0" aria-label={name}>
+        <button
+          onClick={onToggle}
+          className="mt-0.5 shrink-0 transition-transform active:scale-90 hover:scale-110"
+          aria-label={name}
+        >
           {done ? (
-            <CheckCircle2 className="h-6 w-6 text-primary" />
+            <CheckCircle2 className="h-6 w-6 text-primary animate-pop-in" />
           ) : (
             <Circle className="h-6 w-6 text-muted-foreground/40" />
           )}
@@ -705,7 +709,9 @@ function HabitCard({
           <p className="text-xs text-muted-foreground">ทุกวัน</p>
         </div>
         <div className="text-right">
-          <p className="text-lg font-extrabold text-primary">{streak}</p>
+          <p className="text-lg font-extrabold text-primary">
+            {streak > 0 ? `🔥${streak}` : streak}
+          </p>
           <p className="text-[10px] text-muted-foreground">วันต่อเนื่อง</p>
         </div>
       </div>
