@@ -768,7 +768,7 @@ function BottomNav({
         <div className="flex flex-1 justify-center">
           <button
             onClick={onAdd}
-            className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform active:scale-95"
+            className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform hover:scale-110 hover:rotate-90 active:scale-95"
             aria-label="เพิ่มรายการ"
           >
             <Plus className="h-7 w-7" />
