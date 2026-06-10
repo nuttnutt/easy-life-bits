@@ -238,6 +238,86 @@ export function isHabitDoneToday(logs: HabitLog[], habitId: string): boolean {
   return logs.some((l) => l.habitId === habitId && l.day === today);
 }
 
+// Streak for a single habit: consecutive days ending today/yesterday.
+export function habitStreakFor(logs: HabitLog[], habitId: string): number {
+  const days = new Set(
+    logs.filter((l) => l.habitId === habitId).map((l) => l.day),
+  );
+  if (days.size === 0) return 0;
+  let streak = 0;
+  const cursor = new Date();
+  if (!days.has(dayKey(cursor))) {
+    cursor.setDate(cursor.getDate() - 1);
+    if (!days.has(dayKey(cursor))) return 0;
+  }
+  while (days.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+export interface DayCell {
+  date: Date;
+  day: string; // YYYY-MM-DD
+  label: string; // weekday short
+  num: number; // date number
+  done?: boolean;
+  isToday: boolean;
+}
+
+// Last `n` days (oldest -> newest) with done state for a habit.
+export function lastNDaysFor(
+  logs: HabitLog[],
+  habitId: string,
+  n = 7,
+): DayCell[] {
+  const done = new Set(
+    logs.filter((l) => l.habitId === habitId).map((l) => l.day),
+  );
+  const todayKey = dayKey();
+  const cells: DayCell[] = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = dayKey(d);
+    cells.push({
+      date: d,
+      day: key,
+      label: d.toLocaleDateString("th-TH", { weekday: "narrow" }),
+      num: d.getDate(),
+      done: done.has(key),
+      isToday: key === todayKey,
+    });
+  }
+  return cells;
+}
+
+// Current calendar week (Mon-Sun) for the strip.
+export function currentWeek(logs: HabitLog[]): DayCell[] {
+  const anyDone = new Set(logs.map((l) => l.day));
+  const todayKey = dayKey();
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7; // 0 = Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow);
+  const cells: DayCell[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = dayKey(d);
+    cells.push({
+      date: d,
+      day: key,
+      label: d.toLocaleDateString("th-TH", { weekday: "narrow" }),
+      num: d.getDate(),
+      done: anyDone.has(key),
+      isToday: key === todayKey,
+    });
+  }
+  return cells;
+}
+
 export function formatMoney(n: number): string {
   return new Intl.NumberFormat("th-TH", {
     style: "currency",
