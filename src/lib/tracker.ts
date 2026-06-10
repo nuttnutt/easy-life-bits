@@ -82,7 +82,10 @@ function load(): TrackerData {
     if (!raw) return DEFAULT_DATA;
     const parsed = JSON.parse(raw) as Partial<TrackerData>;
     return {
-      expenses: parsed.expenses ?? [],
+      expenses: (parsed.expenses ?? []).map((e) => ({
+        ...e,
+        flow: e.flow ?? "out",
+      })),
       habits: parsed.habits?.length ? parsed.habits : DEFAULT_DATA.habits,
       logs: parsed.logs ?? [],
     };
