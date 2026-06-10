@@ -308,11 +308,11 @@ function EntrySheet({
       <div className="relative w-full max-w-md rounded-t-3xl bg-card p-5 pb-8 shadow-2xl">
         <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border" />
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-foreground">Quick entry</h3>
+          <h3 className="text-lg font-bold text-foreground">เพิ่มรายการด่วน</h3>
           <button
             onClick={onClose}
             className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
-            aria-label="Close"
+            aria-label="ปิด"
           >
             <X className="h-5 w-5" />
           </button>
@@ -323,13 +323,13 @@ function EntrySheet({
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full py-2 text-sm font-semibold capitalize transition-colors ${
+              className={`rounded-full py-2 text-sm font-semibold transition-colors ${
                 tab === t
                   ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground"
               }`}
             >
-              {t === "expense" ? "Expense" : "New habit"}
+              {t === "expense" ? "รายจ่าย" : "นิสัยใหม่"}
             </button>
           ))}
         </div>
@@ -338,10 +338,10 @@ function EntrySheet({
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-                Amount
+                จำนวนเงิน
               </label>
               <div className="flex items-center rounded-xl border border-input bg-background px-4 focus-within:ring-2 focus-within:ring-ring">
-                <span className="text-lg font-bold text-muted-foreground">$</span>
+                <span className="text-lg font-bold text-muted-foreground">฿</span>
                 <input
                   type="number"
                   inputMode="decimal"
@@ -355,7 +355,7 @@ function EntrySheet({
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-                Category
+                หมวดหมู่
               </label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((c) => (
@@ -368,19 +368,19 @@ function EntrySheet({
                         : "bg-secondary text-secondary-foreground"
                     }`}
                   >
-                    {categoryEmoji[c]} {c}
+                    {categoryEmoji[c]} {categoryLabel[c]}
                   </button>
                 ))}
               </div>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-                Description (optional)
+                รายละเอียด (ไม่บังคับ)
               </label>
               <input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. Lunch with friends"
+                placeholder="เช่น ข้าวเที่ยงกับเพื่อน"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -388,17 +388,17 @@ function EntrySheet({
         ) : (
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-              Habit name
+              ชื่อนิสัย
             </label>
             <input
               autoFocus
               value={habitName}
               onChange={(e) => setHabitName(e.target.value)}
-              placeholder="e.g. Meditate 10 min"
+              placeholder="เช่น นั่งสมาธิ 10 นาที"
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              It will appear in your daily checklist.
+              จะปรากฏในรายการนิสัยประจำวันของคุณ
             </p>
           </div>
         )}
@@ -407,7 +407,7 @@ function EntrySheet({
           onClick={submit}
           className="mt-6 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-transform active:scale-[0.98]"
         >
-          {tab === "expense" ? "Add expense" : "Add habit"}
+          {tab === "expense" ? "เพิ่มรายจ่าย" : "เพิ่มนิสัย"}
         </button>
       </div>
     </div>
