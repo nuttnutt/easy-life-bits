@@ -14,6 +14,7 @@ import { TrendingUp, BarChart3 } from "lucide-react";
 import {
   type Expense,
   type HabitLog,
+  type TrendPoint,
   dailyTrend,
   weeklyTrend,
   formatMoney,
@@ -24,9 +25,11 @@ type Range = "daily" | "weekly";
 export function TrendCharts({
   expenses,
   logs,
+  onSelectRange,
 }: {
   expenses: Expense[];
   logs: HabitLog[];
+  onSelectRange?: (d: { from: string; to: string; label: string }) => void;
 }) {
   const [range, setRange] = useState<Range>("daily");
 
@@ -42,6 +45,16 @@ export function TrendCharts({
     () => data.reduce((s, d) => s + d.habits, 0),
     [data],
   );
+
+  const handlePick = (p?: TrendPoint) => {
+    if (!p || !onSelectRange) return;
+    onSelectRange({ from: p.from, to: p.to, label: p.label });
+  };
+
+  const onChartClick = (state: { activeTooltipIndex?: number } | null) => {
+    if (!state || state.activeTooltipIndex == null) return;
+    handlePick(data[state.activeTooltipIndex]);
+  };
 
   return (
     <section className="mt-6">
@@ -66,13 +79,23 @@ export function TrendCharts({
         </div>
       </div>
 
+      {onSelectRange && (
+        <p className="mb-2 text-[11px] text-muted-foreground">
+          แตะที่กราฟเพื่อกรองรายการตามช่วงเวลา
+        </p>
+      )}
       <div className="card-soft p-4">
         <p className="text-xs font-semibold text-muted-foreground">
           รายจ่าย ({range === "daily" ? "7 วันล่าสุด" : "6 สัปดาห์ล่าสุด"})
         </p>
         <div className="mt-2 h-40 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 8, right: 4, left: -16, bottom: 0 }}>
+            <AreaChart
+              data={data}
+              margin={{ top: 8, right: 4, left: -16, bottom: 0 }}
+              onClick={onChartClick}
+              className="cursor-pointer"
+            >
               <defs>
                 <linearGradient id="spendFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.35} />
@@ -106,6 +129,7 @@ export function TrendCharts({
                 stroke="var(--color-primary)"
                 strokeWidth={2.5}
                 fill="url(#spendFill)"
+                activeDot={{ r: 5, cursor: "pointer" }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -123,7 +147,12 @@ export function TrendCharts({
         </div>
         <div className="mt-2 h-36 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 8, right: 4, left: -16, bottom: 0 }}>
+            <BarChart
+              data={data}
+              margin={{ top: 8, right: 4, left: -16, bottom: 0 }}
+              onClick={onChartClick}
+              className="cursor-pointer"
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
               <XAxis
                 dataKey="label"
@@ -147,7 +176,13 @@ export function TrendCharts({
                 }}
                 formatter={(value: number) => [`${value} ครั้ง`, "กิจนิสัย"]}
               />
-              <Bar dataKey="habits" fill="var(--color-primary)" radius={[6, 6, 0, 0]} maxBarSize={28} />
+              <Bar
+                dataKey="habits"
+                fill="var(--color-primary)"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={28}
+                cursor="pointer"
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
