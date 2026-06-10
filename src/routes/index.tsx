@@ -12,6 +12,7 @@ import {
   X,
   CalendarDays,
 } from "lucide-react";
+import { TrendCharts } from "@/components/TrendCharts";
 import {
   CATEGORIES,
   type Category,
@@ -123,6 +124,9 @@ function Index() {
             <p className="text-xs text-muted-foreground">ทำต่อไปนะ!</p>
           </div>
         </section>
+
+        {/* Trend charts */}
+        <TrendCharts expenses={data.expenses} logs={data.logs} />
 
         {/* Today's habits */}
         <section className="mt-6">
