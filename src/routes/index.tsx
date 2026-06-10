@@ -564,8 +564,8 @@ function TxnRow({ e, onRemove }: { e: Expense; onRemove: (id: string) => void })
   });
   const isIncome = e.flow === "in";
   return (
-    <li className="card-soft group flex items-center gap-3 p-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-lg">
+    <li className="card-soft group flex animate-pop-in items-center gap-3 p-3 transition-transform hover:-translate-y-0.5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-lg transition-transform group-hover:scale-110 group-hover:-rotate-6">
         {emojiFor(e)}
       </span>
       <div className="min-w-0 flex-1">
