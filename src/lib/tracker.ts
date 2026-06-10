@@ -189,9 +189,9 @@ export function isHabitDoneToday(logs: HabitLog[], habitId: string): boolean {
 }
 
 export function formatMoney(n: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("th-TH", {
     style: "currency",
-    currency: "USD",
+    currency: "THB",
     minimumFractionDigits: 2,
   }).format(n);
 }
