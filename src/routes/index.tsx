@@ -247,7 +247,7 @@ function TopBar({ title }: { title: string }) {
         <img
           src={appLogo.url}
           alt="Smart Expense & Habit Tracker"
-          className="h-9 w-9 rounded-full object-cover"
+          className="h-9 w-9 rounded-full object-cover animate-float-soft"
         />
         <h1 className="text-base font-bold text-foreground">{title}</h1>
       </div>
