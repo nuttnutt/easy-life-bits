@@ -19,11 +19,23 @@ export const CATEGORIES: Category[] = [
   "Other",
 ];
 
+export type IncomeCategory = "Salary" | "Bonus" | "Gift" | "OtherIncome";
+
+export const INCOME_CATEGORIES: IncomeCategory[] = [
+  "Salary",
+  "Bonus",
+  "Gift",
+  "OtherIncome",
+];
+
+export type Flow = "in" | "out";
+
 export interface Expense {
   id: string;
   type: "expense";
+  flow: Flow;
   amount: number;
-  category: Category;
+  category: Category | IncomeCategory;
   description: string;
   date: string; // ISO
 }
@@ -70,7 +82,10 @@ function load(): TrackerData {
     if (!raw) return DEFAULT_DATA;
     const parsed = JSON.parse(raw) as Partial<TrackerData>;
     return {
-      expenses: parsed.expenses ?? [],
+      expenses: (parsed.expenses ?? []).map((e) => ({
+        ...e,
+        flow: e.flow ?? "out",
+      })),
       habits: parsed.habits?.length ? parsed.habits : DEFAULT_DATA.habits,
       logs: parsed.logs ?? [],
     };
@@ -99,11 +114,17 @@ export function useTracker() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data, hydrated]);
 
-  const addExpense = useCallback(
-    (amount: number, category: Category, description: string) => {
+  const addTransaction = useCallback(
+    (
+      flow: Flow,
+      amount: number,
+      category: Category | IncomeCategory,
+      description: string,
+    ) => {
       const expense: Expense = {
         id: uid(),
         type: "expense",
+        flow,
         amount,
         category,
         description,
@@ -151,17 +172,46 @@ export function useTracker() {
     }));
   }, []);
 
-  return { data, hydrated, addExpense, toggleHabit, addHabit, removeItem };
+  return { data, hydrated, addTransaction, toggleHabit, addHabit, removeItem };
 }
 
-export function monthTotal(expenses: Expense[]): number {
+function inThisMonth(dateStr: string): boolean {
   const now = new Date();
+  const d = new Date(dateStr);
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+
+export function monthTotal(expenses: Expense[], flow: Flow = "out"): number {
   return expenses
-    .filter((e) => {
-      const d = new Date(e.date);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    })
+    .filter((e) => e.flow === flow && inThisMonth(e.date))
     .reduce((sum, e) => sum + e.amount, 0);
+}
+
+export function monthBalance(expenses: Expense[]): number {
+  return monthTotal(expenses, "in") - monthTotal(expenses, "out");
+}
+
+export interface CategorySlice {
+  category: Category;
+  amount: number;
+  pct: number;
+}
+
+export function categoryBreakdown(expenses: Expense[]): CategorySlice[] {
+  const out = expenses.filter((e) => e.flow === "out" && inThisMonth(e.date));
+  const total = out.reduce((s, e) => s + e.amount, 0);
+  const map = new Map<Category, number>();
+  for (const e of out) {
+    const c = e.category as Category;
+    map.set(c, (map.get(c) ?? 0) + e.amount);
+  }
+  return [...map.entries()]
+    .map(([category, amount]) => ({
+      category,
+      amount,
+      pct: total > 0 ? Math.round((amount / total) * 100) : 0,
+    }))
+    .sort((a, b) => b.amount - a.amount);
 }
 
 // Best current streak across all habits: count consecutive days (ending today
@@ -186,6 +236,86 @@ export function habitStreak(logs: HabitLog[]): number {
 export function isHabitDoneToday(logs: HabitLog[], habitId: string): boolean {
   const today = dayKey();
   return logs.some((l) => l.habitId === habitId && l.day === today);
+}
+
+// Streak for a single habit: consecutive days ending today/yesterday.
+export function habitStreakFor(logs: HabitLog[], habitId: string): number {
+  const days = new Set(
+    logs.filter((l) => l.habitId === habitId).map((l) => l.day),
+  );
+  if (days.size === 0) return 0;
+  let streak = 0;
+  const cursor = new Date();
+  if (!days.has(dayKey(cursor))) {
+    cursor.setDate(cursor.getDate() - 1);
+    if (!days.has(dayKey(cursor))) return 0;
+  }
+  while (days.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+export interface DayCell {
+  date: Date;
+  day: string; // YYYY-MM-DD
+  label: string; // weekday short
+  num: number; // date number
+  done?: boolean;
+  isToday: boolean;
+}
+
+// Last `n` days (oldest -> newest) with done state for a habit.
+export function lastNDaysFor(
+  logs: HabitLog[],
+  habitId: string,
+  n = 7,
+): DayCell[] {
+  const done = new Set(
+    logs.filter((l) => l.habitId === habitId).map((l) => l.day),
+  );
+  const todayKey = dayKey();
+  const cells: DayCell[] = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = dayKey(d);
+    cells.push({
+      date: d,
+      day: key,
+      label: d.toLocaleDateString("th-TH", { weekday: "narrow" }),
+      num: d.getDate(),
+      done: done.has(key),
+      isToday: key === todayKey,
+    });
+  }
+  return cells;
+}
+
+// Current calendar week (Mon-Sun) for the strip.
+export function currentWeek(logs: HabitLog[]): DayCell[] {
+  const anyDone = new Set(logs.map((l) => l.day));
+  const todayKey = dayKey();
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7; // 0 = Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow);
+  const cells: DayCell[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = dayKey(d);
+    cells.push({
+      date: d,
+      day: key,
+      label: d.toLocaleDateString("th-TH", { weekday: "narrow" }),
+      num: d.getDate(),
+      done: anyDone.has(key),
+      isToday: key === todayKey,
+    });
+  }
+  return cells;
 }
 
 export function formatMoney(n: number): string {
@@ -223,7 +353,7 @@ export function dailyTrend(
     d.setDate(d.getDate() - i);
     const key = dayKey(d);
     const amount = expenses
-      .filter((e) => dayKey(e.date) === key)
+      .filter((e) => e.flow === "out" && dayKey(e.date) === key)
       .reduce((s, e) => s + e.amount, 0);
     const habits = logs.filter((l) => l.day === key).length;
     result.push({
@@ -252,7 +382,7 @@ export function weeklyTrend(
       return k >= dayKey(start) && k <= dayKey(end);
     };
     const amount = expenses
-      .filter((e) => inRange(e.date))
+      .filter((e) => e.flow === "out" && inRange(e.date))
       .reduce((s, e) => s + e.amount, 0);
     const habits = logs.filter((l) => inRange(l.date)).length;
     result.push({
