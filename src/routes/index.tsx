@@ -35,6 +35,7 @@ import {
   buildHistory,
   categoryBreakdown,
   currentWeek,
+  dayKey,
   formatMoney,
   habitStreakFor,
   isHabitDoneToday,
