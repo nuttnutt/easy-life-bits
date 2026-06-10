@@ -250,19 +250,31 @@ function HomeTab({
   data,
   hydrated,
   onRemove,
+  filter,
+  onSelectCategory,
 }: {
   data: { expenses: Expense[]; logs: HabitLog[] };
   hydrated: boolean;
   onRemove: (id: string) => void;
+  filter: TxnFilter;
+  onSelectCategory: (category: Category) => void;
 }) {
   const income = useMemo(() => monthTotal(data.expenses, "in"), [data.expenses]);
   const expense = useMemo(() => monthTotal(data.expenses, "out"), [data.expenses]);
   const balance = useMemo(() => monthBalance(data.expenses), [data.expenses]);
   const slices = useMemo(() => categoryBreakdown(data.expenses), [data.expenses]);
-  const [query, setQuery] = useState("");
-  const [flowFilter, setFlowFilter] = useState<"all" | "in" | "out">("all");
-  const [catFilter, setCatFilter] = useState<string>("all");
-  const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
+  const {
+    query,
+    setQuery,
+    flowFilter,
+    setFlowFilter,
+    catFilter,
+    setCatFilter,
+    sort,
+    setSort,
+    dateFilter,
+    setDateFilter,
+  } = filter;
 
   const allTxns = useMemo(
     () =>
@@ -283,6 +295,10 @@ function HomeTab({
     const list = allTxns.filter((e) => {
       if (flowFilter !== "all" && e.flow !== flowFilter) return false;
       if (catFilter !== "all" && e.category !== catFilter) return false;
+      if (dateFilter) {
+        const k = dayKey(e.date);
+        if (k < dateFilter.from || k > dateFilter.to) return false;
+      }
       if (q) {
         const hay = `${e.description ?? ""} ${labelFor(e)}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -298,12 +314,13 @@ function HomeTab({
       sorted.sort((a, b) => +new Date(b.date) - +new Date(a.date));
     }
     return sorted;
-  }, [allTxns, query, flowFilter, catFilter, sort]);
+  }, [allTxns, query, flowFilter, catFilter, sort, dateFilter]);
 
   const isFiltering =
     query.trim() !== "" ||
     flowFilter !== "all" ||
     catFilter !== "all" ||
+    dateFilter !== null ||
     sort !== "newest";
   const recent = isFiltering ? filtered : filtered.slice(0, 5);
 
