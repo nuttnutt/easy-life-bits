@@ -85,14 +85,14 @@ function Index() {
       <div className="mx-auto w-full max-w-md px-4">
         <header className="pt-8 pb-5">
           <p className="text-sm font-medium text-muted-foreground">
-            {new Date().toLocaleDateString("en-US", {
+            {new Date().toLocaleDateString("th-TH", {
               weekday: "long",
               day: "numeric",
               month: "short",
             })}
           </p>
           <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-foreground">
-            Daily Life Tracker
+            ตัวติดตามประจำวัน
           </h1>
         </header>
 
@@ -103,7 +103,7 @@ function Index() {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Wallet className="h-4 w-4" />
               </span>
-              <span className="text-xs font-semibold">Spent</span>
+              <span className="text-xs font-semibold">ใช้จ่าย</span>
             </div>
             <p className="mt-3 text-2xl font-extrabold text-foreground">
               {formatMoney(total)}
@@ -115,12 +115,12 @@ function Index() {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/40 text-accent-foreground">
                 <Flame className="h-4 w-4" />
               </span>
-              <span className="text-xs font-semibold">Streak</span>
+              <span className="text-xs font-semibold">สถิติต่อเนื่อง</span>
             </div>
             <p className="mt-3 text-2xl font-extrabold text-foreground">
-              {streak} <span className="text-base font-semibold">days</span>
+              {streak} <span className="text-base font-semibold">วัน</span>
             </p>
-            <p className="text-xs text-muted-foreground">Keep it going!</p>
+            <p className="text-xs text-muted-foreground">ทำต่อไปนะ!</p>
           </div>
         </section>
 
@@ -128,7 +128,7 @@ function Index() {
         <section className="mt-6">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <ListChecks className="h-4 w-4 text-primary" /> Today's habits
+              <ListChecks className="h-4 w-4 text-primary" /> นิสัยวันนี้
             </h2>
           </div>
           <div className="card-soft divide-y divide-border p-1">
@@ -163,13 +163,13 @@ function Index() {
         {/* History */}
         <section className="mt-6">
           <h2 className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
-            <CalendarDays className="h-4 w-4 text-primary" /> Recent activity
+            <CalendarDays className="h-4 w-4 text-primary" /> กิจกรรมล่าสุด
           </h2>
           {hydrated && history.length === 0 ? (
             <div className="card-soft p-8 text-center">
               <p className="text-sm text-muted-foreground">
-                Nothing yet. Tap the + button to add your first expense or
-                check off a habit.
+                ยังไม่มีรายการ แตะปุ่ม + เพื่อเพิ่มรายจ่ายแรกของคุณ
+                หรือทำเครื่องหมายนิสัยที่ทำสำเร็จ
               </p>
             </div>
           ) : (
@@ -189,12 +189,12 @@ function Index() {
             onClick={() => setSheet("habit")}
             className="flex h-12 items-center gap-2 rounded-full bg-card px-5 text-sm font-bold text-foreground shadow-lg ring-1 ring-border transition-transform active:scale-95"
           >
-            <ListChecks className="h-4 w-4 text-primary" /> Habit
+            <ListChecks className="h-4 w-4 text-primary" /> นิสัย
           </button>
           <button
             onClick={() => setSheet("expense")}
             className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform active:scale-95"
-            aria-label="Add expense"
+            aria-label="เพิ่มรายจ่าย"
           >
             <Plus className="h-7 w-7" />
           </button>
