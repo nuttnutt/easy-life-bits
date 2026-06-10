@@ -202,6 +202,7 @@ function HomeTab({
   const [query, setQuery] = useState("");
   const [flowFilter, setFlowFilter] = useState<"all" | "in" | "out">("all");
   const [catFilter, setCatFilter] = useState<string>("all");
+  const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
 
   const allTxns = useMemo(
     () =>
@@ -219,7 +220,7 @@ function HomeTab({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return allTxns.filter((e) => {
+    const list = allTxns.filter((e) => {
       if (flowFilter !== "all" && e.flow !== flowFilter) return false;
       if (catFilter !== "all" && e.category !== catFilter) return false;
       if (q) {
@@ -228,9 +229,22 @@ function HomeTab({
       }
       return true;
     });
-  }, [allTxns, query, flowFilter, catFilter]);
+    const sorted = [...list];
+    if (sort === "amount") {
+      sorted.sort((a, b) => b.amount - a.amount);
+    } else if (sort === "oldest") {
+      sorted.sort((a, b) => +new Date(a.date) - +new Date(b.date));
+    } else {
+      sorted.sort((a, b) => +new Date(b.date) - +new Date(a.date));
+    }
+    return sorted;
+  }, [allTxns, query, flowFilter, catFilter, sort]);
 
-  const isFiltering = query.trim() !== "" || flowFilter !== "all" || catFilter !== "all";
+  const isFiltering =
+    query.trim() !== "" ||
+    flowFilter !== "all" ||
+    catFilter !== "all" ||
+    sort !== "newest";
   const recent = isFiltering ? filtered : filtered.slice(0, 5);
 
   return (
