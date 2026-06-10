@@ -339,6 +339,8 @@ export interface TrendPoint {
   label: string;
   amount: number;
   habits: number;
+  from: string; // YYYY-MM-DD
+  to: string; // YYYY-MM-DD
 }
 
 // Daily totals for the last `days` days (oldest -> newest).
@@ -360,6 +362,8 @@ export function dailyTrend(
       label: d.toLocaleDateString("th-TH", { weekday: "short" }),
       amount: Math.round(amount * 100) / 100,
       habits,
+      from: key,
+      to: key,
     });
   }
   return result;
@@ -392,6 +396,8 @@ export function weeklyTrend(
           : start.toLocaleDateString("th-TH", { day: "numeric", month: "short" }),
       amount: Math.round(amount * 100) / 100,
       habits,
+      from: dayKey(start),
+      to: dayKey(end),
     });
   }
   return result;
