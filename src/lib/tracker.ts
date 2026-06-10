@@ -114,11 +114,17 @@ export function useTracker() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data, hydrated]);
 
-  const addExpense = useCallback(
-    (amount: number, category: Category, description: string) => {
+  const addTransaction = useCallback(
+    (
+      flow: Flow,
+      amount: number,
+      category: Category | IncomeCategory,
+      description: string,
+    ) => {
       const expense: Expense = {
         id: uid(),
         type: "expense",
+        flow,
         amount,
         category,
         description,
@@ -166,11 +172,49 @@ export function useTracker() {
     }));
   }, []);
 
-  return { data, hydrated, addExpense, toggleHabit, addHabit, removeItem };
+  return { data, hydrated, addTransaction, toggleHabit, addHabit, removeItem };
 }
 
-export function monthTotal(expenses: Expense[]): number {
+function inThisMonth(dateStr: string): boolean {
   const now = new Date();
+  const d = new Date(dateStr);
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+
+export function monthTotal(expenses: Expense[], flow: Flow = "out"): number {
+  return expenses
+    .filter((e) => e.flow === flow && inThisMonth(e.date))
+    .reduce((sum, e) => sum + e.amount, 0);
+}
+
+export function monthBalance(expenses: Expense[]): number {
+  return monthTotal(expenses, "in") - monthTotal(expenses, "out");
+}
+
+export interface CategorySlice {
+  category: Category;
+  amount: number;
+  pct: number;
+}
+
+export function categoryBreakdown(expenses: Expense[]): CategorySlice[] {
+  const out = expenses.filter((e) => e.flow === "out" && inThisMonth(e.date));
+  const total = out.reduce((s, e) => s + e.amount, 0);
+  const map = new Map<Category, number>();
+  for (const e of out) {
+    const c = e.category as Category;
+    map.set(c, (map.get(c) ?? 0) + e.amount);
+  }
+  return [...map.entries()]
+    .map(([category, amount]) => ({
+      category,
+      amount,
+      pct: total > 0 ? Math.round((amount / total) * 100) : 0,
+    }))
+    .sort((a, b) => b.amount - a.amount);
+}
+
+function legacyMonthTotal(expenses: Expense[]): number {
   return expenses
     .filter((e) => {
       const d = new Date(e.date);
