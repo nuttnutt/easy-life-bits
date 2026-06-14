@@ -175,20 +175,53 @@ export function useTracker() {
   return { data, hydrated, addTransaction, toggleHabit, addHabit, removeItem };
 }
 
-function inThisMonth(dateStr: string): boolean {
-  const now = new Date();
-  const d = new Date(dateStr);
-  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+// Month key in YYYY-MM (local).
+export function monthKey(d: Date | string = new Date()): string {
+  const dt = new Date(d);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export function monthTotal(expenses: Expense[], flow: Flow = "out"): number {
+export function monthLabel(mk: string): string {
+  const [y, m] = mk.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("th-TH", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+// Shift a month key by `delta` months.
+export function shiftMonth(mk: string, delta: number): string {
+  const [y, m] = mk.split("-").map(Number);
+  return monthKey(new Date(y, m - 1 + delta, 1));
+}
+
+function inMonth(dateStr: string, mk: string): boolean {
+  return monthKey(dateStr) === mk;
+}
+
+// Sorted list (newest -> oldest) of month keys that have any transaction,
+// always including the current month.
+export function availableMonths(expenses: Expense[]): string[] {
+  const set = new Set<string>([monthKey()]);
+  for (const e of expenses) set.add(monthKey(e.date));
+  return [...set].sort((a, b) => (a < b ? 1 : -1));
+}
+
+export function monthTotal(
+  expenses: Expense[],
+  flow: Flow = "out",
+  mk: string = monthKey(),
+): number {
   return expenses
-    .filter((e) => e.flow === flow && inThisMonth(e.date))
+    .filter((e) => e.flow === flow && inMonth(e.date, mk))
     .reduce((sum, e) => sum + e.amount, 0);
 }
 
-export function monthBalance(expenses: Expense[]): number {
-  return monthTotal(expenses, "in") - monthTotal(expenses, "out");
+export function monthBalance(
+  expenses: Expense[],
+  mk: string = monthKey(),
+): number {
+  return monthTotal(expenses, "in", mk) - monthTotal(expenses, "out", mk);
 }
 
 export interface CategorySlice {
@@ -197,8 +230,11 @@ export interface CategorySlice {
   pct: number;
 }
 
-export function categoryBreakdown(expenses: Expense[]): CategorySlice[] {
-  const out = expenses.filter((e) => e.flow === "out" && inThisMonth(e.date));
+export function categoryBreakdown(
+  expenses: Expense[],
+  mk: string = monthKey(),
+): CategorySlice[] {
+  const out = expenses.filter((e) => e.flow === "out" && inMonth(e.date, mk));
   const total = out.reduce((s, e) => s + e.amount, 0);
   const map = new Map<Category, number>();
   for (const e of out) {

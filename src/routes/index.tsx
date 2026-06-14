@@ -12,6 +12,7 @@ import {
   BarChart3,
   X,
   ChevronRight,
+  ChevronLeft,
   Trophy,
   Wallet,
   TrendingUp,
@@ -41,6 +42,10 @@ import {
   lastNDaysFor,
   monthBalance,
   monthTotal,
+  monthKey,
+  monthLabel,
+  shiftMonth,
+  availableMonths,
   useTracker,
 } from "@/lib/tracker";
 import { TrendCharts } from "@/components/TrendCharts";
@@ -273,10 +278,26 @@ function HomeTab({
   filter: TxnFilter;
   onSelectCategory: (category: Category) => void;
 }) {
-  const income = useMemo(() => monthTotal(data.expenses, "in"), [data.expenses]);
-  const expense = useMemo(() => monthTotal(data.expenses, "out"), [data.expenses]);
-  const balance = useMemo(() => monthBalance(data.expenses), [data.expenses]);
-  const slices = useMemo(() => categoryBreakdown(data.expenses), [data.expenses]);
+  const [activeMonth, setActiveMonth] = useState<string>(monthKey());
+  const months = useMemo(() => availableMonths(data.expenses), [data.expenses]);
+  const isCurrentMonth = activeMonth === monthKey();
+  const hasOlder = months.some((m) => m < activeMonth);
+  const income = useMemo(
+    () => monthTotal(data.expenses, "in", activeMonth),
+    [data.expenses, activeMonth],
+  );
+  const expense = useMemo(
+    () => monthTotal(data.expenses, "out", activeMonth),
+    [data.expenses, activeMonth],
+  );
+  const balance = useMemo(
+    () => monthBalance(data.expenses, activeMonth),
+    [data.expenses, activeMonth],
+  );
+  const slices = useMemo(
+    () => categoryBreakdown(data.expenses, activeMonth),
+    [data.expenses, activeMonth],
+  );
   const {
     query,
     setQuery,
@@ -309,6 +330,7 @@ function HomeTab({
     const list = allTxns.filter((e) => {
       if (flowFilter !== "all" && e.flow !== flowFilter) return false;
       if (catFilter !== "all" && e.category !== catFilter) return false;
+      if (!dateFilter && monthKey(e.date) !== activeMonth) return false;
       if (dateFilter) {
         const k = dayKey(e.date);
         if (k < dateFilter.from || k > dateFilter.to) return false;
@@ -328,7 +350,7 @@ function HomeTab({
       sorted.sort((a, b) => +new Date(b.date) - +new Date(a.date));
     }
     return sorted;
-  }, [allTxns, query, flowFilter, catFilter, sort, dateFilter]);
+  }, [allTxns, query, flowFilter, catFilter, sort, dateFilter, activeMonth]);
 
   const isFiltering =
     query.trim() !== "" ||
@@ -341,6 +363,34 @@ function HomeTab({
   return (
     <div className="px-4">
       <TopBar title="ภาพรวมวันนี้" />
+
+      {/* Month selector */}
+      <div className="mb-4 flex items-center justify-between rounded-2xl bg-secondary px-2 py-1.5">
+        <button
+          onClick={() => setActiveMonth((m) => shiftMonth(m, -1))}
+          disabled={!hasOlder}
+          aria-label="เดือนก่อนหน้า"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors enabled:hover:bg-card disabled:opacity-30"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <span className="text-sm font-bold text-foreground">
+          {monthLabel(activeMonth)}
+          {!isCurrentMonth && (
+            <span className="ml-1.5 text-[11px] font-medium text-muted-foreground">
+              (ย้อนหลัง)
+            </span>
+          )}
+        </span>
+        <button
+          onClick={() => setActiveMonth((m) => shiftMonth(m, 1))}
+          disabled={isCurrentMonth}
+          aria-label="เดือนถัดไป"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors enabled:hover:bg-card disabled:opacity-30"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
 
       {/* Balance card */}
       <div className="balance-gradient relative overflow-hidden rounded-3xl p-5 text-primary-foreground shadow-lg">
