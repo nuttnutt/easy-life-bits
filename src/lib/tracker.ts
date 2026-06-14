@@ -68,7 +68,6 @@ const STORAGE_KEY = "daily-life-tracker:v1";
 const DEFAULT_DATA: TrackerData = {
   expenses: [],
   habits: [
-    { id: "h-water", name: "ดื่มน้ำ", createdAt: new Date().toISOString() },
     { id: "h-exercise", name: "ออกกำลังกาย", createdAt: new Date().toISOString() },
     { id: "h-read", name: "อ่านหนังสือ", createdAt: new Date().toISOString() },
   ],
@@ -86,7 +85,9 @@ function load(): TrackerData {
         ...e,
         flow: e.flow ?? "out",
       })),
-      habits: parsed.habits?.length ? parsed.habits : DEFAULT_DATA.habits,
+      habits: (parsed.habits?.length ? parsed.habits : DEFAULT_DATA.habits).filter(
+        (h) => h.id !== "h-water",
+      ),
       logs: parsed.logs ?? [],
     };
   } catch {
