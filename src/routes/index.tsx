@@ -12,6 +12,7 @@ import {
   BarChart3,
   X,
   ChevronRight,
+  ChevronLeft,
   Trophy,
   Wallet,
   TrendingUp,
@@ -41,6 +42,10 @@ import {
   lastNDaysFor,
   monthBalance,
   monthTotal,
+  monthKey,
+  monthLabel,
+  shiftMonth,
+  availableMonths,
   useTracker,
 } from "@/lib/tracker";
 import { TrendCharts } from "@/components/TrendCharts";
