@@ -68,7 +68,6 @@ const STORAGE_KEY = "daily-life-tracker:v1";
 const DEFAULT_DATA: TrackerData = {
   expenses: [],
   habits: [
-    { id: "h-water", name: "ดื่มน้ำ", createdAt: new Date().toISOString() },
     { id: "h-exercise", name: "ออกกำลังกาย", createdAt: new Date().toISOString() },
     { id: "h-read", name: "อ่านหนังสือ", createdAt: new Date().toISOString() },
   ],
