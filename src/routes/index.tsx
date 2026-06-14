@@ -330,6 +330,7 @@ function HomeTab({
     const list = allTxns.filter((e) => {
       if (flowFilter !== "all" && e.flow !== flowFilter) return false;
       if (catFilter !== "all" && e.category !== catFilter) return false;
+      if (!dateFilter && monthKey(e.date) !== activeMonth) return false;
       if (dateFilter) {
         const k = dayKey(e.date);
         if (k < dateFilter.from || k > dateFilter.to) return false;
@@ -349,7 +350,7 @@ function HomeTab({
       sorted.sort((a, b) => +new Date(b.date) - +new Date(a.date));
     }
     return sorted;
-  }, [allTxns, query, flowFilter, catFilter, sort, dateFilter]);
+  }, [allTxns, query, flowFilter, catFilter, sort, dateFilter, activeMonth]);
 
   const isFiltering =
     query.trim() !== "" ||
