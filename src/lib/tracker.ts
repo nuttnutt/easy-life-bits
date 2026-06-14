@@ -85,7 +85,9 @@ function load(): TrackerData {
         ...e,
         flow: e.flow ?? "out",
       })),
-      habits: parsed.habits?.length ? parsed.habits : DEFAULT_DATA.habits,
+      habits: (parsed.habits?.length ? parsed.habits : DEFAULT_DATA.habits).filter(
+        (h) => h.id !== "h-water",
+      ),
       logs: parsed.logs ?? [],
     };
   } catch {
