@@ -424,7 +424,10 @@ function HomeTab({
                     <span className="flex-1 text-left text-foreground">
                       {categoryLabel[s.category]}
                     </span>
-                    <span className="font-semibold text-muted-foreground">
+                    <span className="text-right font-semibold text-foreground">
+                      {formatMoney(s.amount)}
+                    </span>
+                    <span className="w-9 text-right text-[11px] font-medium text-muted-foreground">
                       {s.pct}%
                     </span>
                   </button>
