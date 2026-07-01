@@ -134,7 +134,7 @@ function emojiFor(e: Expense): string {
     : categoryEmoji[e.category as Category];
 }
 
-type Tab = "home" | "habits" | "stats";
+type Tab = "home" | "habits" | "stats" | "summary";
 
 export interface DateFilter {
   from: string;
