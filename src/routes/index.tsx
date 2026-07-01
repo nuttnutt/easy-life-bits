@@ -24,6 +24,12 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
 } from "recharts";
 import {
   CATEGORIES,
