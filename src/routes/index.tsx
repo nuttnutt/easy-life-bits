@@ -24,6 +24,12 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
 } from "recharts";
 import {
   CATEGORIES,
@@ -47,6 +53,8 @@ import {
   shiftMonth,
   availableMonths,
   useTracker,
+  sixMonthSummaries,
+  yearlySummaries,
 } from "@/lib/tracker";
 import { TrendCharts } from "@/components/TrendCharts";
 import appLogo from "@/assets/app-logo.png.asset.json";
@@ -126,7 +134,7 @@ function emojiFor(e: Expense): string {
     : categoryEmoji[e.category as Category];
 }
 
-type Tab = "home" | "habits" | "stats";
+type Tab = "home" | "habits" | "stats" | "summary";
 
 export interface DateFilter {
   from: string;
@@ -222,6 +230,12 @@ function Index() {
               logs={data.logs}
               onSelectRange={selectDateRange}
             />
+          </div>
+        )}
+        {tab === "summary" && (
+          <div className="px-4">
+            <TopBar title="สรุปยอดรวม" />
+            <SummaryTab expenses={data.expenses} />
           </div>
         )}
       </div>
@@ -648,6 +662,116 @@ function TxnRow({ e, onRemove }: { e: Expense; onRemove: (id: string) => void })
   );
 }
 
+/* ---------------- Summary ---------------- */
+
+type SummaryRange = "6m" | "1y";
+
+function SummaryTab({ expenses }: { expenses: Expense[] }) {
+  const [range, setRange] = useState<SummaryRange>("6m");
+  const summaries = useMemo(
+    () => (range === "6m" ? sixMonthSummaries(expenses) : yearlySummaries(expenses)),
+    [range, expenses],
+  );
+
+  const chartData = useMemo(() => [...summaries].reverse(), [summaries]);
+
+  return (
+    <section className="mt-2 space-y-4">
+      <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1 text-center text-xs font-semibold">
+        {(["6m", "1y"] as const).map((r) => (
+          <button
+            key={r}
+            onClick={() => setRange(r)}
+            className={`rounded-full px-3 py-1.5 transition-colors ${
+              range === r ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+            }`}
+          >
+            {r === "6m" ? "ครึ่งปี" : "ปี"}
+          </button>
+        ))}
+      </div>
+
+      {summaries.length === 0 ? (
+        <div className="card-soft p-8 text-center">
+          <p className="text-sm text-muted-foreground">ยังไม่มีข้อมูลสำหรับสรุปยอด</p>
+        </div>
+      ) : (
+        <>
+          <div className="card-soft p-4">
+            <p className="mb-2 text-xs font-semibold text-muted-foreground">
+              เปรียบเทียบรายรับ – รายจ่าย
+            </p>
+            <div className="h-52 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v))}
+                    width={40}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-card)",
+                      fontSize: 12,
+                    }}
+                    formatter={(value: number) => [formatMoney(value)]}
+                    labelStyle={{ color: "var(--color-foreground)", fontWeight: 700 }}
+                  />
+                  <Bar dataKey="income" fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                  <Bar dataKey="expense" fill="var(--color-destructive)" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-2 flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[var(--color-chart-2)]" />
+                รายรับ
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[var(--color-destructive)]" />
+                รายจ่าย
+              </span>
+            </div>
+          </div>
+
+          {summaries.map((s) => (
+            <div key={s.key} className="card-soft p-4 animate-pop-in">
+              <p className="text-sm font-bold text-foreground">{s.label}</p>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">รายรับ</p>
+                  <p className="text-sm font-bold text-primary">{formatMoney(s.income)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">รายจ่าย</p>
+                  <p className="text-sm font-bold text-destructive">{formatMoney(s.expense)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">คงเหลือ</p>
+                  <p className={`text-sm font-bold ${s.balance >= 0 ? "text-foreground" : "text-destructive"}`}>
+                    {formatMoney(s.balance)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
 /* ---------------- Habits ---------------- */
 
 function HabitsTab({
@@ -832,7 +956,7 @@ function BottomNav({
           </button>
         </div>
         {item("habits", "นิสัย", Heart)}
-        {item("stats", "สถิติ", BarChart3)}
+        {item("summary", "สรุปยอด", BarChart3)}
       </div>
     </nav>
   );

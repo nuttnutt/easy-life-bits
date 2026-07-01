@@ -439,3 +439,72 @@ export function weeklyTrend(
   }
   return result;
 }
+
+export interface PeriodSummary {
+  key: string;
+  label: string;
+  income: number;
+  expense: number;
+  balance: number;
+}
+
+function halfYearKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  const year = d.getFullYear();
+  const half = d.getMonth() < 6 ? 1 : 2;
+  return `${year}-H${half}`;
+}
+
+function halfYearLabel(key: string): string {
+  const [yearStr, halfStr] = key.split("-");
+  const half = halfStr === "H1" ? "ม.ค. – มิ.ย." : "ก.ค. – ธ.ค.";
+  return `${half} ${Number(yearStr) + 543}`;
+}
+
+function yearKeyStr(dateStr: string): string {
+  return String(new Date(dateStr).getFullYear());
+}
+
+function yearLabelStr(key: string): string {
+  return `ปี ${Number(key) + 543}`;
+}
+
+export function sixMonthSummaries(expenses: Expense[]): PeriodSummary[] {
+  const map = new Map<string, { income: number; expense: number }>();
+  for (const e of expenses) {
+    const key = halfYearKey(e.date);
+    const cur = map.get(key) ?? { income: 0, expense: 0 };
+    if (e.flow === "in") cur.income += e.amount;
+    else cur.expense += e.amount;
+    map.set(key, cur);
+  }
+  return [...map.entries()]
+    .map(([key, v]) => ({
+      key,
+      label: halfYearLabel(key),
+      income: Math.round(v.income * 100) / 100,
+      expense: Math.round(v.expense * 100) / 100,
+      balance: Math.round((v.income - v.expense) * 100) / 100,
+    }))
+    .sort((a, b) => (a.key < b.key ? 1 : -1));
+}
+
+export function yearlySummaries(expenses: Expense[]): PeriodSummary[] {
+  const map = new Map<string, { income: number; expense: number }>();
+  for (const e of expenses) {
+    const key = yearKeyStr(e.date);
+    const cur = map.get(key) ?? { income: 0, expense: 0 };
+    if (e.flow === "in") cur.income += e.amount;
+    else cur.expense += e.amount;
+    map.set(key, cur);
+  }
+  return [...map.entries()]
+    .map(([key, v]) => ({
+      key,
+      label: yearLabelStr(key),
+      income: Math.round(v.income * 100) / 100,
+      expense: Math.round(v.expense * 100) / 100,
+      balance: Math.round((v.income - v.expense) * 100) / 100,
+    }))
+    .sort((a, b) => (a.key < b.key ? 1 : -1));
+}
