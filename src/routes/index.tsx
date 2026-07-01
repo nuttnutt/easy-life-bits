@@ -956,7 +956,7 @@ function BottomNav({
           </button>
         </div>
         {item("habits", "นิสัย", Heart)}
-        {item("stats", "สถิติ", BarChart3)}
+        {item("summary", "สรุปยอด", BarChart3)}
       </div>
     </nav>
   );
