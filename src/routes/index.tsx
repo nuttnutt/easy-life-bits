@@ -53,6 +53,8 @@ import {
   shiftMonth,
   availableMonths,
   useTracker,
+  sixMonthSummaries,
+  yearlySummaries,
 } from "@/lib/tracker";
 import { TrendCharts } from "@/components/TrendCharts";
 import appLogo from "@/assets/app-logo.png.asset.json";
