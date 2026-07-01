@@ -232,6 +232,12 @@ function Index() {
             />
           </div>
         )}
+        {tab === "summary" && (
+          <div className="px-4">
+            <TopBar title="สรุปยอดรวม" />
+            <SummaryTab expenses={data.expenses} />
+          </div>
+        )}
       </div>
 
       <BottomNav tab={tab} setTab={setTab} onAdd={() => setSheet(true)} />
