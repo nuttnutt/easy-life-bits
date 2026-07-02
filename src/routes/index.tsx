@@ -296,7 +296,10 @@ function HomeTab({
   const [activeMonth, setActiveMonth] = useState<string>(monthKey());
   const months = useMemo(() => availableMonths(data.expenses), [data.expenses]);
   const isCurrentMonth = activeMonth === monthKey();
-  const hasOlder = months.some((m) => m < activeMonth);
+  const hasData = months.length > 0;
+  const earliest = hasData ? months[months.length - 1] : monthKey();
+  // allow browsing back up to a year before the earliest recorded month
+  const hasOlder = shiftMonth(activeMonth, -1) >= shiftMonth(earliest, -12);
   const income = useMemo(
     () => monthTotal(data.expenses, "in", activeMonth),
     [data.expenses, activeMonth],
