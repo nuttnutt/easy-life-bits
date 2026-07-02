@@ -40,12 +40,13 @@ import {
   type HabitLog,
   buildHistory,
   categoryBreakdown,
-  currentWeek,
   dayKey,
   formatMoney,
   habitStreakFor,
   isHabitDoneToday,
-  lastNDaysFor,
+  weekOf,
+  habitWeekOf,
+  weekRangeLabel,
   monthBalance,
   monthTotal,
   monthKey,
@@ -781,11 +782,12 @@ function HabitsTab({
   data: { habits: { id: string; name: string }[]; logs: HabitLog[] };
   onToggle: (id: string) => void;
 }) {
-  const week = useMemo(() => currentWeek(data.logs), [data.logs]);
-  const monthLabel = new Date().toLocaleDateString("th-TH", {
-    month: "long",
-    year: "numeric",
-  });
+  const [weekOffset, setWeekOffset] = useState(0);
+  const week = useMemo(
+    () => weekOf(data.logs, weekOffset),
+    [data.logs, weekOffset],
+  );
+  const isCurrentWeek = weekOffset === 0;
   const anyDoneToday = data.habits.some((h) =>
     isHabitDoneToday(data.logs, h.id),
   );
@@ -794,9 +796,35 @@ function HabitsTab({
     <div className="px-4">
       <TopBar title="ติดตามนิสัย" />
 
+      {/* Week selector */}
+      <div className="mb-4 flex items-center justify-between rounded-2xl bg-secondary px-2 py-1.5">
+        <button
+          onClick={() => setWeekOffset((w) => w - 1)}
+          aria-label="สัปดาห์ก่อนหน้า"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-card"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <span className="text-sm font-bold text-foreground">
+          {weekRangeLabel(week)}
+          {!isCurrentWeek && (
+            <span className="ml-1.5 text-[11px] font-medium text-muted-foreground">
+              (ย้อนหลัง)
+            </span>
+          )}
+        </span>
+        <button
+          onClick={() => setWeekOffset((w) => w + 1)}
+          disabled={isCurrentWeek}
+          aria-label="สัปดาห์ถัดไป"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors enabled:hover:bg-card disabled:opacity-30"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+
       {/* Week strip */}
       <section className="card-soft p-4">
-        <p className="mb-3 text-sm font-bold text-foreground">{monthLabel}</p>
         <div className="flex justify-between">
           {week.map((c) => (
             <div key={c.day} className="flex flex-col items-center gap-1.5">
@@ -830,8 +858,9 @@ function HabitsTab({
             name={h.name}
             done={isHabitDoneToday(data.logs, h.id)}
             streak={habitStreakFor(data.logs, h.id)}
-            days={lastNDaysFor(data.logs, h.id, 7)}
+            days={habitWeekOf(data.logs, h.id, weekOffset)}
             onToggle={() => onToggle(h.id)}
+            editable={isCurrentWeek}
           />
         ))}
       </section>
@@ -864,19 +893,22 @@ function HabitCard({
   streak,
   days,
   onToggle,
+  editable = true,
 }: {
   name: string;
   done: boolean;
   streak: number;
   days: { day: string; done?: boolean }[];
   onToggle: () => void;
+  editable?: boolean;
 }) {
   return (
     <div className="card-soft p-4">
       <div className="flex items-start gap-3">
         <button
           onClick={onToggle}
-          className="mt-0.5 shrink-0 transition-transform active:scale-90 hover:scale-110"
+          disabled={!editable}
+          className="mt-0.5 shrink-0 transition-transform active:scale-90 enabled:hover:scale-110 disabled:cursor-not-allowed"
           aria-label={name}
         >
           {done ? (

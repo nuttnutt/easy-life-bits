@@ -355,6 +355,82 @@ export function currentWeek(logs: HabitLog[]): DayCell[] {
   return cells;
 }
 
+// Monday of the week shifted by `offset` weeks (0 = current week).
+function mondayOf(offset: number): Date {
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7; // 0 = Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow + offset * 7);
+  return monday;
+}
+
+// Week strip (Mon-Sun) for the week shifted by `offset` weeks.
+export function weekOf(logs: HabitLog[], offset = 0): DayCell[] {
+  const anyDone = new Set(logs.map((l) => l.day));
+  const todayKey = dayKey();
+  const monday = mondayOf(offset);
+  const cells: DayCell[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = dayKey(d);
+    cells.push({
+      date: d,
+      day: key,
+      label: d.toLocaleDateString("th-TH", { weekday: "narrow" }),
+      num: d.getDate(),
+      done: anyDone.has(key),
+      isToday: key === todayKey,
+    });
+  }
+  return cells;
+}
+
+// Per-habit done state for the 7 days of the week shifted by `offset` weeks.
+export function habitWeekOf(
+  logs: HabitLog[],
+  habitId: string,
+  offset = 0,
+): DayCell[] {
+  const done = new Set(
+    logs.filter((l) => l.habitId === habitId).map((l) => l.day),
+  );
+  const todayKey = dayKey();
+  const monday = mondayOf(offset);
+  const cells: DayCell[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = dayKey(d);
+    cells.push({
+      date: d,
+      day: key,
+      label: d.toLocaleDateString("th-TH", { weekday: "narrow" }),
+      num: d.getDate(),
+      done: done.has(key),
+      isToday: key === todayKey,
+    });
+  }
+  return cells;
+}
+
+// Human label for a week strip, e.g. "1 – 7 ก.ค.".
+export function weekRangeLabel(cells: DayCell[]): string {
+  if (cells.length === 0) return "";
+  const start = cells[0].date;
+  const end = cells[cells.length - 1].date;
+  const startStr = start.toLocaleDateString("th-TH", {
+    day: "numeric",
+    month: "short",
+  });
+  const endStr = end.toLocaleDateString("th-TH", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return `${startStr} – ${endStr}`;
+}
+
 export function formatMoney(n: number): string {
   return new Intl.NumberFormat("th-TH", {
     style: "currency",
