@@ -894,19 +894,22 @@ function HabitCard({
   streak,
   days,
   onToggle,
+  editable = true,
 }: {
   name: string;
   done: boolean;
   streak: number;
   days: { day: string; done?: boolean }[];
   onToggle: () => void;
+  editable?: boolean;
 }) {
   return (
     <div className="card-soft p-4">
       <div className="flex items-start gap-3">
         <button
           onClick={onToggle}
-          className="mt-0.5 shrink-0 transition-transform active:scale-90 hover:scale-110"
+          disabled={!editable}
+          className="mt-0.5 shrink-0 transition-transform active:scale-90 enabled:hover:scale-110 disabled:cursor-not-allowed"
           aria-label={name}
         >
           {done ? (
