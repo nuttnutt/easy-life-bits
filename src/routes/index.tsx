@@ -40,7 +40,6 @@ import {
   type HabitLog,
   buildHistory,
   categoryBreakdown,
-  currentWeek,
   dayKey,
   formatMoney,
   habitStreakFor,
